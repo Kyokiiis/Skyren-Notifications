@@ -97,7 +97,6 @@ local CoreGui = game:GetService("CoreGui")
 
 -- Interface Management
 local Skyren = game:GetObjects("rbxassetid://12523360936")[1]
-Skyren.DisplayOrder = 100000
 if gethui then
 	Skyren.Parent = gethui()
 elseif syn.protect_gui then 
@@ -128,7 +127,7 @@ end
 -- Object Variables
 
 local Camera = workspace.CurrentCamera
-Skyren.DisplayOrder = 100
+Skyren.DisplayOrder = 10000000
 
 -- Variables
 
