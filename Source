@@ -1,18 +1,16 @@
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
---
-local Skyren = game:GetObjects("rbxassetid://12523360936")[1]
-syn.protect_gui(Skyren)
-Skyren.Parent = game:GetService("CoreGui")
--- Old UI Destroy
-for _, ui in ipairs(game:GetService("CoreGui"):GetChildren()) do
-    if ui.Name == "Skyren" and ui ~= Skyren then
-        game:GetService("CoreGui").Skyren:Destroy()
-    end
-end
---
-local CldzLibrary = {
+--[[
+
+Skyren Interface Suite
+by Sirius
+
+shlex | Designing + Programming
+iRay  | Programming
+
+]]
+
+local NotificationDuration = 6.5
+
+local SkyrenLibrary = {
 	Flags = {},
 	Theme = {
 		Default = {
@@ -25,7 +23,34 @@ local CldzLibrary = {
 			
 			NotificationBackground = Color3.fromRGB(20, 20, 20),
 			NotificationActionsBackground = Color3.fromRGB(230, 230, 230),
-
+			
+			TabBackground = Color3.fromRGB(80, 80, 80),
+			TabStroke = Color3.fromRGB(85, 85, 85),
+			TabBackgroundSelected = Color3.fromRGB(210, 210, 210),
+			TabTextColor = Color3.fromRGB(240, 240, 240),
+			SelectedTabTextColor = Color3.fromRGB(50, 50, 50),
+			
+			ElementBackground = Color3.fromRGB(35, 35, 35),
+			ElementBackgroundHover = Color3.fromRGB(40, 40, 40),
+			SecondaryElementBackground = Color3.fromRGB(25, 25, 25), -- For labels and paragraphs
+			ElementStroke = Color3.fromRGB(50, 50, 50),
+			SecondaryElementStroke = Color3.fromRGB(40, 40, 40), -- For labels and paragraphs
+			
+			SliderBackground = Color3.fromRGB(43, 105, 159),
+			SliderProgress = Color3.fromRGB(43, 105, 159),
+			SliderStroke = Color3.fromRGB(48, 119, 177),
+			
+			ToggleBackground = Color3.fromRGB(30, 30, 30),
+			ToggleEnabled = Color3.fromRGB(0, 146, 214),
+			ToggleDisabled = Color3.fromRGB(100, 100, 100),
+			ToggleEnabledStroke = Color3.fromRGB(0, 170, 255),
+			ToggleDisabledStroke = Color3.fromRGB(125, 125, 125),
+			ToggleEnabledOuterStroke = Color3.fromRGB(100, 100, 100),
+			ToggleDisabledOuterStroke = Color3.fromRGB(65, 65, 65),
+			
+			InputBackground = Color3.fromRGB(30, 30, 30),
+			InputStroke = Color3.fromRGB(65, 65, 65),
+			PlaceholderColor = Color3.fromRGB(178, 178, 178)
 		},
 		Light = {
 			TextFont = "Gotham", -- Default will use the various font faces used across Skyren
@@ -37,16 +62,90 @@ local CldzLibrary = {
 
 			NotificationBackground = Color3.fromRGB(20, 20, 20),
 			NotificationActionsBackground = Color3.fromRGB(230, 230, 230),
+
+			TabBackground = Color3.fromRGB(220, 220, 220),
+			TabStroke = Color3.fromRGB(112, 112, 112),
+			TabBackgroundSelected = Color3.fromRGB(0, 142, 208),
+			TabTextColor = Color3.fromRGB(240, 240, 240),
+			SelectedTabTextColor = Color3.fromRGB(50, 50, 50),
+		
+			ElementBackground = Color3.fromRGB(198, 198, 198),
+			ElementBackgroundHover = Color3.fromRGB(230, 230, 230),
+			SecondaryElementBackground = Color3.fromRGB(136, 136, 136), -- For labels and paragraphs
+			ElementStroke = Color3.fromRGB(180, 199, 97),
+			SecondaryElementStroke = Color3.fromRGB(40, 40, 40), -- For labels and paragraphs
+
+			SliderBackground = Color3.fromRGB(31, 159, 71),
+			SliderProgress = Color3.fromRGB(31, 159, 71),
+			SliderStroke = Color3.fromRGB(42, 216, 94),
+
+			ToggleBackground = Color3.fromRGB(170, 203, 60),
+			ToggleEnabled = Color3.fromRGB(32, 214, 29),
+			ToggleDisabled = Color3.fromRGB(100, 22, 23),
+			ToggleEnabledStroke = Color3.fromRGB(17, 255, 0),
+			ToggleDisabledStroke = Color3.fromRGB(65, 8, 8),
+			ToggleEnabledOuterStroke = Color3.fromRGB(0, 170, 0),
+			ToggleDisabledOuterStroke = Color3.fromRGB(170, 0, 0),
+
+			InputBackground = Color3.fromRGB(31, 159, 71),
+			InputStroke = Color3.fromRGB(19, 65, 31),
+			PlaceholderColor = Color3.fromRGB(178, 178, 178)
 		}
 	}
 }
-----
 
-local Notifications = Skyren.Notifications
+
+
+-- Services
+
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+
+-- Interface Management
+local Skyren = game:GetObjects("rbxassetid://12523360936")[1]
+
+if gethui then
+	Skyren.Parent = gethui()
+elseif syn.protect_gui then 
+	syn.protect_gui(Skyren)
+	Skyren.Parent = CoreGui
+elseif CoreGui:FindFirstChild("RobloxGui") then
+	Skyren.Parent = CoreGui:FindFirstChild("RobloxGui")
+else
+	Skyren.Parent = CoreGui
+end
+
+if gethui then
+	for _, Interface in ipairs(gethui():GetChildren()) do
+		if Interface.Name == Skyren.Name and Interface ~= Skyren then
+			Interface.Enabled = false
+			Interface.Name = "Skyren-Old"
+		end
+	end
+else
+	for _, Interface in ipairs(CoreGui:GetChildren()) do
+		if Interface.Name == Skyren.Name and Interface ~= Skyren then
+			Interface.Enabled = false
+			Interface.Name = "Skyren-Old"
+		end
+	end
+end
+
+-- Object Variables
+
 local Camera = workspace.CurrentCamera
-local Selected = CldzLibrary.Theme.Default
+Skyren.DisplayOrder = 100
 
-----
+-- Variables
+
+local request = (syn and syn.request) or (http and http.request) or http_request
+local Notifications = Skyren.Notifications
+local Selected = SkyrenLibrary.Theme.Default
+
 local neon = (function() -- Open sourced neon module
 	local module = {}
 
@@ -61,10 +160,10 @@ local neon = (function() -- Open sourced neon module
 		end
 	end
 	local RootParent = Camera
-	if getgenv().Blur == nil then
+	if getgenv().SecureMode == nil then
 		RootParent = Camera
 	else
-		if not getgenv().Blur then
+		if not getgenv().SecureMode then
 			RootParent = Camera
 		else 
 			RootParent = nil
@@ -268,7 +367,7 @@ local neon = (function() -- Open sourced neon module
 
 end)()
 
-function CldzLibrary:NotifyV2(NotificationSettings)
+function SkyrenLibrary:Notify(NotificationSettings)
 	spawn(function()
 		local ActionCompleted = true
 		local Notification = Notifications.V2Template:Clone()
@@ -318,7 +417,7 @@ function CldzLibrary:NotifyV2(NotificationSettings)
 				ActionCompleted = false
 				local NewAction = Notification.Actions.Template:Clone()
 				NewAction.BackgroundColor3 = Selected.NotificationActionsBackground
-				if Selected ~= CldzLibrary.Theme.Default then
+				if Selected ~= SkyrenLibrary.Theme.Default then
 					NewAction.TextColor3 = Selected.TextColor
 				end
 				NewAction.Name = Action.Name
@@ -489,7 +588,7 @@ function CldzLibrary:NotifyV2(NotificationSettings)
 	end)
 end
 --[[
-    CldzLibrary:NotifyV2({
+SkyrenLibrary:Notify({
     Title = "Administrator",
     Content = "An administrator from this game (Frappe) has joined your session, would you like to disconnect?",
     Tag = "{Sky Security}",
@@ -505,7 +604,5 @@ end
         end
          },
     },
-}) 
-]]
-
-return CldzLibrary
+})]]
+return SkyrenLibrary
